@@ -1,10 +1,10 @@
 import { getCookie } from "@/lib/server-cookies";
 import { Customer } from "@/app/types";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button"; // Asumsi pakai Shadcn
+import { Button } from "@/components/ui/button"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import getCustomer from "./get";
-import { PlusCircle, User, MapPin, Phone } from "lucide-react"; // Icon biar manis
+import { PlusCircle, User, MapPin, Phone } from "lucide-react"; 
 
 export default async function ServicesPage() {
     const customer: Customer[] = await getCustomer();

@@ -66,6 +66,7 @@ export default async function ServicesPage ()  {
                         }
                     </div>
             }
+            <EditService selectedData={service}/>
         </div>
     
     )

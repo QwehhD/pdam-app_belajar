@@ -38,8 +38,10 @@ const AddService = () => {
     // )
 
     const openModal = () => {
-    alert("Modal Clicked");
-    setIsShow(true);
+    
+      alert("Modal Clicked");
+      setIsShow(true);
+      setOpen(true);
     setName("");
     setMinUsage(0);
     setMaxUsage(0);
@@ -50,7 +52,7 @@ const AddService = () => {
         try {
             e.preventDefault()
         
-        const toke = await getCookie("accessToken");
+        const token = await getCookie("accessToken");
         const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/services`
         const payload = JSON.stringify({
             name,
@@ -62,8 +64,9 @@ const AddService = () => {
         const response = await fetch(url, {
             method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "APP-KEY": process.env.NEXT_PUBLIC_APP_KEY || "",
-                "Authorization": `Bearer ${toke}`,
+                "Authorization": `Bearer ${token}`,
             },
             body: payload
         })
@@ -86,9 +89,9 @@ const AddService = () => {
     return (
         <div>
             <div>
-                <Dialog>
+                <Dialog open=(open)>
         <DialogTrigger asChild>
-          <Button variant="outline">Add Service</Button>
+          <Button onClick = {openModal} variant="default">Add Service</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-sm">
     <form onSubmit={handleSubmit}>
@@ -100,21 +103,22 @@ const AddService = () => {
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
+            {/* defaultValue=  for place holder*/}
             <Field>
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" defaultValue="Service Name" value={name} type="text" onChange={(e) => setName(e.target.value)}/>
+              <Input id="name" name="name" placeholder="Service Name" value={name} type="text" onChange={(e) => setName(e.target.value)}/>
             </Field>
             <Field>
               <Label htmlFor="min-usage">Minimum Usage</Label>
-              <Input id="min-usage" name="min-usage" defaultValue="Minimum Usage" value={min_usage} type="number" onChange={(e) => setMinUsage(Number(e.target.value))}/>
+              <Input id="min-usage" name="min-usage" placeholder="Minimum Usage" value={min_usage} type="number" onChange={(e) => setMinUsage(Number(e.target.value))}/>
             </Field>
             <Field>
               <Label htmlFor="max-usage">Maximum Usage</Label>
-              <Input id="max-usage" name="max-usage" defaultValue="Maximum Usage" value={max_usage} type="number" onChange={(e) => setMaxUsage(Number(e.target.value))}/>
+              <Input id="max-usage" name="max-usage" placeholder="Maximum Usage" value={max_usage} type="number" onChange={(e) => setMaxUsage(Number(e.target.value))}/>
             </Field>
             <Field>
               <Label htmlFor="price">Price</Label>
-              <Input id="price" name="price" defaultValue="Price" value={price} type="number" onChange={(e) => setPrice(Number(e.target.value))}/>
+              <Input id="price" name="price" placeholder="Price" value={price} type="number" onChange={(e) => setPrice(Number(e.target.value))}/>
             </Field>
           </FieldGroup>
           <DialogFooter>
