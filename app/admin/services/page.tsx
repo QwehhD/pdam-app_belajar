@@ -2,6 +2,7 @@ import { getCookie } from "@/lib/server-cookies";
 import { Services } from "@/app/types";
 import AddService from "./add";
 import { Dialog } from "@/components/ui/dialog";
+import { Search } from "@/components/Search"
 
 type ResultData = {
     success: boolean,
@@ -11,10 +12,10 @@ type ResultData = {
 }
 
 
-async function getServices(): Promise<Services[]> {
+async function getServices(page:number, quantity:number, search:string): Promise<Services[]> {
     try {
         const token = await getCookie('accessToken');
-        const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/services`
+        const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/services?page=${quantity}&search=${search}`
         
         const response = await fetch(url, 
             {
@@ -31,19 +32,44 @@ async function getServices(): Promise<Services[]> {
 
         if (!response.ok) {
             console.log(responseData?.message)
-            return [];
+            return {
+                success: responseData.success,
+                message: rensponseData.message,
+                data: [],
+                count: 0,
+            };
         }
         
-        return responseData.data
+        return {
+            success: responseData.success,
+            message: responseData.success,
+            data: responseData.data,
+            count: responseData.count,
+        }
 
     } catch (error) {
-        console.log(error)
-        return [];
+        console.log(error);
+        return {
+            success: false,
+        };
+    }
+
+    type Props = {
+        searchParams: Promise<{
+            page?: number
+            quantity?: number
+            seach?: string
+        }>
     }
 }
 
-export default async function ServicesPage ()  {
+export default async function ServicesPage (prop: Props)  {
     const services = await getServices();
+
+    const page = (await prop.searchParams)?.page || 1
+    const quantity = (await prop.searchParams)?.quantity || 5
+    const search = (await prop.searchParams)?.search || ""
+    const {count: counts, data: services} = await getServices(page)
     return (
         <div>
             <h1>Service Page</h1>
@@ -54,6 +80,9 @@ export default async function ServicesPage ()  {
             {
                 services.length == 0 ? "Data Service Tidak Ada" :
                     <div>
+                    <div>
+                        <Search search= {search ?? ``}/>
+                    </div>
                         {services.map((service) => {
                             return (
                                 <div key={service.id}>
