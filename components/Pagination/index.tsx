@@ -1,4 +1,4 @@
-"use Client"
+"use client"
 
 import {
   Pagination,
@@ -43,8 +43,7 @@ export default function SimplePagination({ count, perPage, currentPages }: Props
             pages.push(i);
         }
         return pages;
-        
-        
+    }
 
     console.log("count:", count);
     console.log("perPage:", perPage);
@@ -54,6 +53,14 @@ export default function SimplePagination({ count, perPage, currentPages }: Props
     return (
         <Pagination>
             <PaginationContent>
+        {/* Previous */}
+        <PaginationItem>
+            <PaginationPrevious
+            onClick={() => !isFirstPage && changePage(currentPages - 1)}
+            className={isFirstPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            />
+        </PaginationItem>
+
         {/* First Ellipsis*/}
         {currentPages > 3 && (
             <>
@@ -95,11 +102,10 @@ export default function SimplePagination({ count, perPage, currentPages }: Props
         <PaginationItem>
             <PaginationNext
             onClick={() => !isLastPage && changePage(currentPages + 1)}
-            className={isLastPage ? "pointer-events-none opacity-50" : ""}
+            className={isLastPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
             />
         </PaginationItem>
       </PaginationContent>
     </Pagination>
         )
     }
- }
