@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label"
 const AddService = () => {
     const router = useRouter();
 
-    const [isShow, setIsShow] = useState<boolean>(false);
+    const [open, setOpen] = useState<boolean>(false);
     const [name, setName] = useState<string>("");
     const [min_usage, setMinUsage] = useState<number>(0);
     const [max_usage, setMaxUsage] = useState<number>(0);
@@ -38,15 +38,12 @@ const AddService = () => {
     // )
 
     const openModal = () => {
-    
-      alert("Modal Clicked");
-      setIsShow(true);
       setOpen(true);
-    setName("");
-    setMinUsage(0);
-    setMaxUsage(0);
-    setPrice(0);
-};
+      setName("");
+      setMinUsage(0);
+      setMaxUsage(0);
+      setPrice(0);
+    };
 
     const handleSubmit = async (e: FormEvent) => {
         try {
@@ -73,7 +70,7 @@ const AddService = () => {
 
         const result = await response.json()
         if (result?.success) {
-            setIsShow(false)
+            setOpen(false)
             toast.success(result?.message)
             setTimeout(() =>
                 router.refresh(), 1000)
@@ -81,7 +78,7 @@ const AddService = () => {
             toast.warning(result?.message)
             }
 
-        } catch (error) {1
+        } catch (error) {
             toast.error("Something went wrong")
         }
         
@@ -89,7 +86,7 @@ const AddService = () => {
     return (
         <div>
             <div>
-                <Dialog open=(open)>
+                <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button onClick = {openModal} variant="default">Add Service</Button>
         </DialogTrigger>

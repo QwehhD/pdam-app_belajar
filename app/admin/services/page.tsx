@@ -1,8 +1,9 @@
 import { getCookie } from "@/lib/server-cookies";
 import { Services } from "@/app/types";
 import AddService from "./add";
+import EditService from "./edit";
 import { Dialog } from "@/components/ui/dialog";
-import { Search } from "@/components/Search"
+import Search from "@/components/Search"
 
 type ResultData = {
     success: boolean,
@@ -11,11 +12,18 @@ type ResultData = {
     count: number
 }
 
+type Props = {
+    searchParams: Promise<{
+        page?: number
+        quantity?: number
+        search?: string
+    }>
+}
 
-async function getServices(page:number, quantity:number, search:string): Promise<Services[]> {
+async function getServices(page:number, quantity:number, search:string): Promise<ResultData> {
     try {
         const token = await getCookie('accessToken');
-        const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/services?page=${quantity}&search=${search}`
+        const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/services?page=${page}&quantity=${quantity}&search=${search}`
         
         const response = await fetch(url, 
             {
@@ -34,7 +42,7 @@ async function getServices(page:number, quantity:number, search:string): Promise
             console.log(responseData?.message)
             return {
                 success: responseData.success,
-                message: rensponseData.message,
+                message: responseData.message,
                 data: [],
                 count: 0,
             };
@@ -42,7 +50,7 @@ async function getServices(page:number, quantity:number, search:string): Promise
         
         return {
             success: responseData.success,
-            message: responseData.success,
+            message: responseData.message,
             data: responseData.data,
             count: responseData.count,
         }
@@ -51,25 +59,18 @@ async function getServices(page:number, quantity:number, search:string): Promise
         console.log(error);
         return {
             success: false,
+            message: "Error fetching services",
+            data: [],
+            count: 0
         };
-    }
-
-    type Props = {
-        searchParams: Promise<{
-            page?: number
-            quantity?: number
-            seach?: string
-        }>
     }
 }
 
 export default async function ServicesPage (prop: Props)  {
-    const services = await getServices();
-
     const page = (await prop.searchParams)?.page || 1
     const quantity = (await prop.searchParams)?.quantity || 5
     const search = (await prop.searchParams)?.search || ""
-    const {count: counts, data: services} = await getServices(page)
+    const {count: counts, data: services} = await getServices(page, quantity, search)
     return (
         <div>
             <h1>Service Page</h1>
@@ -89,13 +90,14 @@ export default async function ServicesPage (prop: Props)  {
                                     <h2>Nama : {service.name}</h2>
                                     <p>Layanan</p>
                                     <p>{service.min_usage} - {service.max_usage}</p>
+                                    <EditService selectedData={service}/>
                                 </div>
                             )
                         })
                         }
                     </div>
             }
-            <EditService selectedData={service}/>
+            
         </div>
     
     )
