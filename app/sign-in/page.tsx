@@ -47,27 +47,27 @@ export default function SignIpPage() {
 
 
     return (
-        <div className="w-full h-dvh bg-blue-50 p-3 flex items-center justify-center">
-            <div className="bg-white p-10 w-full md:w-1/2 lg:w-1/3 rounded-lg">
-                <h1 className="text-center font-bold text-blue-800 text-2xl">
+        <div className="w-full h-dvh bg-gray-900 dark:bg-black p-3 flex items-center justify-center">
+            <div className="bg-gray-800 dark:bg-gray-900 p-10 w-full md:w-1/2 lg:w-1/3 rounded-lg shadow-lg">
+                <h1 className="text-center font-bold text-white text-2xl">
                     Sign-In
                 </h1>
 
                 <form className="my-3" onSubmit={handleSignUp}>
-                    <label htmlFor="username" className="text-sm font-semibold text-blue-500">Username</label>
+                    <label htmlFor="username" className="text-sm font-semibold text-gray-300">Username</label>
                     <input type="text" id="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="w-full p-2 border border-blue-500 text-slate-900 mb-2 rounded" />
+                        className="w-full p-2 border border-gray-600 bg-gray-700 text-white mb-2 rounded" />
 
-                    <label htmlFor="password" className="text-sm font-semibold text-blue-500">Password</label>
+                    <label htmlFor="password" className="text-sm font-semibold text-gray-300">Password</label>
                     <input type="password" id="password"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
-                        className="w-full p-2 border border-blue-500 text-slate-900 mb-2 rounded" />
+                        className="w-full p-2 border border-gray-600 bg-gray-700 text-white mb-2 rounded" />
 
                     <button type="submit"
-                        className="w-full bg-blue-500 text-white p-2 font-semibold hover:bg-blue-600 rounded">
+                        className="w-full bg-sky-600 text-white p-2 font-semibold hover:bg-sky-700 rounded">
                         Sign-In
                     </button>
 

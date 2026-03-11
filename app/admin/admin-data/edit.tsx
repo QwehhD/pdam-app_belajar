@@ -1,8 +1,8 @@
 "use client";
 
-import { Customer } from "@/app/types";
+import { Admin } from "@/app/types";
 import { getCookie } from "@/lib/client-cookies";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
@@ -19,20 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Field, FieldGroup } from "@/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-interface Service {
-  id: string;
-  name: string;
-}
-
-const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
+const EditAdmin = ({ selectedData }: { selectedData: Admin }) => {
   const router = useRouter();
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -40,53 +28,6 @@ const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
   const [password, setPassword] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [address, setAddress] = useState<string>("");
-  const [customer_number, setCustomerNumber] = useState<string>("");
-  const [service_id, setServiceId] = useState<string>("");
-  const [services, setServices] = useState<Service[]>([]);
-  const [loadingServices, setLoadingServices] = useState<boolean>(false);
-
-  const fetchServices = async () => {
-    try {
-      setLoadingServices(true);
-      const token = await getCookie("accessToken");
-      if (!token) {
-        setLoadingServices(false);
-        return;
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_API_URL}/services`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "APP-KEY": process.env.NEXT_PUBLIC_APP_KEY || "",
-            "Authorization": `Bearer ${token}`,
-          },
-        }
-      );
-
-      const result = await response.json();
-      if (result?.data) {
-        const servicesData = result.data.map((service: any) => ({
-          id: String(service.id),
-          name: service.name,
-        }));
-        setServices(servicesData);
-      }
-    } catch (error: any) {
-      console.error("Error fetching services:", error);
-    } finally {
-      setLoadingServices(false);
-    }
-  };
-
-  useEffect(() => {
-    if (open) {
-      fetchServices();
-    }
-  }, [open]);
 
   const openModal = () => {
     setOpen(true);
@@ -94,30 +35,22 @@ const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
     setPassword("");
     setName(selectedData.name);
     setPhone(selectedData.phone);
-    setAddress(selectedData.address);
-    setCustomerNumber(selectedData.customer_number);
-    setServiceId(String(selectedData.service_id));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     try {
       e.preventDefault();
 
-      // Cek minimal ada 1 field yang diubah
       const isUsernameEmpty = !username.trim();
       const isPasswordEmpty = !password.trim();
       const isNameEmpty = !name.trim();
       const isPhoneEmpty = !phone.trim();
-      const isAddressEmpty = !address.trim();
-      const isCustomerNumberEmpty = !customer_number.trim();
-      const isServiceIdEmpty = !service_id.trim() || service_id === String(selectedData.service_id);
 
-      if (isUsernameEmpty && isPasswordEmpty && isNameEmpty && isPhoneEmpty && isAddressEmpty && isCustomerNumberEmpty && isServiceIdEmpty) {
+      if (isUsernameEmpty && isPasswordEmpty && isNameEmpty && isPhoneEmpty) {
         toast.error("Mohon ubah minimal satu field");
         return;
       }
 
-      // Validasi hanya untuk field yang di-edit
       if (!isUsernameEmpty && username.length < 3) {
         toast.error("Username minimal 3 karakter");
         return;
@@ -133,11 +66,6 @@ const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
         return;
       }
 
-      if (!isCustomerNumberEmpty && customer_number.length < 13) {
-        toast.error("NIK minimal 13 digit");
-        return;
-      }
-
       setLoading(true);
 
       const token = await getCookie("accessToken");
@@ -147,19 +75,13 @@ const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
         return;
       }
 
-      // Build payload dengan hanya field yang diubah
       const payload: any = {};
       if (!isUsernameEmpty) payload.username = username;
       if (!isPasswordEmpty) payload.password = password;
       if (!isNameEmpty) payload.name = name;
       if (!isPhoneEmpty) payload.phone = phone;
-      if (!isAddressEmpty) payload.address = address;
-      if (!isCustomerNumberEmpty) payload.customer_number = customer_number;
-      if (!isServiceIdEmpty) payload.service_id = Number(service_id);
 
-      const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/customers/${selectedData.id}`;
-
-      console.log("Submitting customer update:", payload);
+      const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/admins/${selectedData.id}`;
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -176,21 +98,21 @@ const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
       }).finally(() => clearTimeout(timeoutId));
 
       const result = await response.json();
-      console.log("Edit customer response:", result);
+      console.log("Edit admin response:", result);
 
       if (result?.success) {
-        toast.success(result?.message || "Customer berhasil diperbarui");
+        toast.success(result?.message || "Admin berhasil diperbarui");
         setOpen(false);
         setLoading(false);
         setTimeout(() => {
           router.refresh();
         }, 300);
       } else {
-        toast.error(result?.message || "Gagal memperbarui customer");
+        toast.error(result?.message || "Gagal memperbarui admin");
         setLoading(false);
       }
     } catch (error: any) {
-      console.error("Error updating customer:", error);
+      console.error("Error updating admin:", error);
       if (error?.name === "AbortError") {
         toast.error("Koneksi timeout. Server tidak merespon dalam waktu yang ditentukan");
       } else {
@@ -213,7 +135,7 @@ const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Edit Customer</DialogTitle>
+            <DialogTitle>Edit Admin</DialogTitle>
             <DialogDescription>
               Ubah field yang ingin diubah. Field lain akan tetap tidak berubah. Minimal harus ada 1 field yang diubah.
             </DialogDescription>
@@ -263,56 +185,10 @@ const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
                 onChange={(e) => setPhone(e.target.value)}
               />
             </Field>
-            <Field>
-              <Label htmlFor="address">Alamat (Opsional)</Label>
-              <Input
-                id="address"
-                name="address"
-                type="text"
-                placeholder="Biarkan kosong jika tidak ingin mengubah"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </Field>
-            <Field>
-              <Label htmlFor="customer_number">NIK / No. Customer (Opsional)</Label>
-              <Input
-                id="customer_number"
-                name="customer_number"
-                type="text"
-                placeholder="Biarkan kosong jika tidak ingin mengubah"
-                value={customer_number}
-                onChange={(e) => setCustomerNumber(e.target.value)}
-              />
-            </Field>
-            <Field>
-              <Label htmlFor="service_id">Service (Opsional)</Label>
-              <Select value={service_id} onValueChange={(value) => {
-                console.log("Selected service:", value);
-                setServiceId(value);
-              }}>
-                <SelectTrigger id="service_id" disabled={loadingServices}>
-                  <SelectValue placeholder={loadingServices ? "Memuat service..." : "Pilih Service (biarkan kosong jika tidak ingin mengubah)"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {services && services.length > 0 ? (
-                    services.map((service) => (
-                      <SelectItem key={service.id} value={service.id}>
-                        {service.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-gray-500">Tidak ada service tersedia</div>
-                  )}
-                </SelectContent>
-              </Select>
-            </Field>
           </FieldGroup>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline" disabled={loading}>
-                Batal
-              </Button>
+              <Button variant="outline" disabled={loading}>Batal</Button>
             </DialogClose>
             <Button type="submit" disabled={loading}>
               {loading ? "Menyimpan..." : "Simpan Perubahan"}
@@ -324,4 +200,4 @@ const EditCustomer = ({ selectedData }: { selectedData: Customer }) => {
   );
 };
 
-export default EditCustomer;
+export default EditAdmin;

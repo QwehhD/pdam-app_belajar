@@ -32,7 +32,7 @@ const Search = ({ search }: Props) => {
         onChange={(e) => setKeyword(e.target.value)}
         placeholder="Keyword of search"
         onKeyUp={(event) => handleSearch(event)}
-        className="w-full border border-primary rounded-md p-2 bg-white "
+        className="w-full border rounded-md p-2 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
       />
     </div>
   );

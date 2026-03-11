@@ -2,7 +2,7 @@
 
 import { getCookie } from "@/lib/client-cookies";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button'
 import {
@@ -18,6 +18,18 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+interface Service {
+  id: string;
+  name: string;
+}
 
 const AddCustomer = () => {
     const router = useRouter();
@@ -30,7 +42,52 @@ const AddCustomer = () => {
     const [phone, setPhone] = useState<string>("");
     const [address, setAddress] = useState<string>("");
     const [customer_number, setCustomerNumber] = useState<string>("");
-    const [service_id, setServiceId] = useState<number>(0);
+    const [service_id, setServiceId] = useState<string>("");
+    const [services, setServices] = useState<Service[]>([]);
+    const [loadingServices, setLoadingServices] = useState<boolean>(false);
+
+    const fetchServices = async () => {
+        try {
+            setLoadingServices(true);
+            const token = await getCookie("accessToken");
+            if (!token) {
+                toast.error("Anda tidak terlogin. Silakan login kembali");
+                setLoadingServices(false);
+                return;
+            }
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_BASE_API_URL}/services`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "APP-KEY": process.env.NEXT_PUBLIC_APP_KEY || "",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const result = await response.json();
+            if (result?.data) {
+                const servicesData = result.data.map((service: any) => ({
+                    id: String(service.id),
+                    name: service.name,
+                }));
+                setServices(servicesData);
+            }
+        } catch (error: any) {
+            console.error("Error fetching services:", error);
+        } finally {
+            setLoadingServices(false);
+        }
+    };
+
+    useEffect(() => {
+        if (open) {
+            fetchServices();
+        }
+    }, [open]);
 
     const openModal = () => {
       setOpen(true);
@@ -40,7 +97,7 @@ const AddCustomer = () => {
       setPhone("");
       setAddress("");
       setCustomerNumber("");
-      setServiceId(0);
+      setServiceId("");
     };
 
     const handleSubmit = async (e: FormEvent) => {
@@ -48,8 +105,17 @@ const AddCustomer = () => {
             e.preventDefault()
             
             // Validasi input
-            if (!username.trim() || !password.trim() || !name.trim() || !phone.trim() || !address.trim() || !customer_number.trim() || service_id === 0) {
-                toast.error("Mohon isi semua field dengan benar")
+            if (!username.trim() || !password.trim() || !name.trim() || !phone.trim() || !address.trim() || !customer_number.trim() || !service_id.trim()) {
+                console.log("Validation failed:", {
+                    username: username.trim(),
+                    password: password.trim(),
+                    name: name.trim(),
+                    phone: phone.trim(),
+                    address: address.trim(),
+                    customer_number: customer_number.trim(),
+                    service_id: service_id.trim(),
+                });
+                toast.error("Mohon isi semua field dengan benar, termasuk Service")
                 return
             }
 
@@ -92,7 +158,7 @@ const AddCustomer = () => {
                 phone,
                 address,
                 customer_number,
-                service_id,
+                service_id: Number(service_id),
             })    
 
             console.log("API URL:", url)
@@ -127,7 +193,7 @@ const AddCustomer = () => {
                 setPhone("")
                 setAddress("")
                 setCustomerNumber("")
-                setServiceId(0)
+                setServiceId("")
                 setLoading(false)
                 setTimeout(() => {
                     router.refresh()
@@ -192,8 +258,26 @@ const AddCustomer = () => {
                             <Input id="customer_number" name="customer_number" placeholder="13 digit NIK" value={customer_number} type="text" onChange={(e) => setCustomerNumber(e.target.value)} required/>
                         </Field>
                         <Field>
-                            <Label htmlFor="service_id">Service ID</Label>
-                            <Input id="service_id" name="service_id" placeholder="1" value={service_id} type="number" onChange={(e) => setServiceId(Number(e.target.value))} required/>
+                            <Label htmlFor="service_id">Service</Label>
+                            <Select value={service_id} onValueChange={(value) => {
+                                console.log("Selected service:", value);
+                                setServiceId(value);
+                            }}>
+                                <SelectTrigger id="service_id" disabled={loadingServices}>
+                                    <SelectValue placeholder={loadingServices ? "Memuat service..." : "Pilih Service"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {services && services.length > 0 ? (
+                                        services.map((service) => (
+                                            <SelectItem key={service.id} value={service.id}>
+                                                {service.name}
+                                            </SelectItem>
+                                        ))
+                                    ) : (
+                                        <div className="p-2 text-sm text-gray-500">Tidak ada service tersedia</div>
+                                    )}
+                                </SelectContent>
+                            </Select>
                         </Field>
                     </FieldGroup>
                     <DialogFooter>

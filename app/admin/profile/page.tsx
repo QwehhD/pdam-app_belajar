@@ -2,6 +2,7 @@ import { getCookie } from "@/lib/server-cookies";
 import { Admin } from "@/app/types"
 import WarningToast from "@/components/WarningToast"
 import { Card } from "@/components/ui/card"
+import AdminProfileForm from "./form"
 
 type ResultData = {
     success: boolean,
@@ -89,25 +90,7 @@ export default async function ProfileAdminPage() {
     }
     return (
         <div className="container mx-auto py-10 px-4">
-            <div className="w-full p-5 bg-sky-50 rounded">
-                <h1 className="font-bold text-sky-500 text-xl">Admin Profile</h1>
-                <table>
-                    <tbody className="text-black">
-                        <tr>
-                            <td className="p-2">Name</td>
-                            <td className="p-2">: {adminData.name}</td>
-                        </tr>
-                        <tr>
-                            <td className="p-2">Username</td>
-                            <td className="p-2">: {adminData.user.username}</td>
-                        </tr>
-                        <tr>
-                            <td className="p-2">Phone</td>
-                            <td className="p-2">: {adminData.phone}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <AdminProfileForm admin={adminData} />
         </div>
     )
 }
