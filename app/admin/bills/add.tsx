@@ -151,11 +151,11 @@ const AddBills = () => {
 
             const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/bills`
             const payload = JSON.stringify({
-                customers_id: Number(customers_id),
-                month,
-                year,
+                customer_id: Number(customers_id),
+                month: Number(month),
+                year: Number(year),
                 measurement_number,
-                usage_value
+                usage_value: Number(usage_value)
             })    
 
             console.log("API URL:", url)
