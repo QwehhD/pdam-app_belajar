@@ -1,5 +1,5 @@
 import { Bills } from "@/app/types";
-// import AddBills from "./add";
+import AddBills from "./add";
 import { Card, CardContent } from "@/components/ui/card";
 import getBills from "./get";
 import { User, Phone, MapPin, Contact, Search as SearchIcon, ShieldCheck } from "lucide-react";
@@ -43,6 +43,7 @@ export default async function BillsPage(prop: Props) {
                         </div>
                     </div>
                     
+                    <AddBills/>
                     {/* <AddBills /> */}
                 </div>
             </div>
@@ -90,12 +91,10 @@ export default async function BillsPage(prop: Props) {
                                             {bill.customer.name.charAt(0).toUpperCase()}
                                         </div>
                                         
-
-                                        
                                         <div className="space-y-1">
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <h2 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                                                    {bill.customer.name.charAt(0).toUpperCase()}
+                                                    {bill.customer.name.toUpperCase()}
                                                 </h2>
                                                 <span className="text-[10px] font-black uppercase tracking-tighter px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-md border border-emerald-100 dark:border-emerald-800">
                                                     #{bill.month}
@@ -108,33 +107,57 @@ export default async function BillsPage(prop: Props) {
                                     </div>
 
                                     {/* Middle: Contact & Address Section */}
-                                    {/* <div className="flex-2 grid grid-cols-1 md:grid-cols-2 gap-4 lg:px-8 lg:border-x border-slate-100 dark:border-slate-800">
+                                    <div className="flex-2 grid grid-cols-1 md:grid-cols-2 gap-4 lg:px-8 lg:border-x border-slate-100 dark:border-slate-800">
                                         <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
                                             <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
                                                 <Phone className="h-4 w-4 text-emerald-500" />
                                             </div>
-                                            <span className="text-sm font-medium">{customer.phone}</span>
+                                            <span className="text-sm font-medium">{bill.month}</span>
                                         </div>
                                         <div className="flex items-start gap-3 text-slate-600 dark:text-slate-300">
                                             <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg shrink-0">
                                                 <MapPin className="h-4 w-4 text-orange-500" />
                                             </div>
                                             <span className="text-sm font-medium line-clamp-2 leading-tight">
-                                                {customer.address}
+                                                {bill.year}
                                             </span>
                                         </div>
-                                    </div> */}
+                                        <div className="flex items-start gap-3 text-slate-600 dark:text-slate-300">
+                                            <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg shrink-0">
+                                                <MapPin className="h-4 w-4 text-orange-500" />
+                                            </div>
+                                            <span className="text-sm font-medium line-clamp-2 leading-tight">
+                                                {bill.measurement_number}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-start gap-3 text-slate-600 dark:text-slate-300">
+                                            <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg shrink-0">
+                                                <MapPin className="h-4 w-4 text-orange-500" />
+                                            </div>
+                                            <span className="text-sm font-medium line-clamp-2 leading-tight">
+                                                {bill.usage_value}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-start gap-3 text-slate-600 dark:text-slate-300">
+                                            <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg shrink-0">
+                                                <MapPin className="h-4 w-4 text-orange-500" />
+                                            </div>
+                                            <span className="text-sm font-medium line-clamp-2 leading-tight">
+                                                {bill.amount}
+                                            </span>
+                                        </div>
+                                    </div>
 
                                     {/* Right: Action Buttons */}
-                                    {/* <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0 justify-end">
+                                    <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0 justify-end">
                                         <div className="flex gap-2 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
-                                            <DetailCustomer selectedData={customer} />
+                                            {/* <DetailCustomer selectedData={customer} />
                                             <EditCustomer selectedData={customer} />
                                             <ResetCustomer selectedData={customer} />
                                             <div className="w-[1px] h-6 bg-slate-200 dark:bg-slate-700 mx-1 self-center" />
-                                            <DeleteCustomer selectedData={customer} />
-                                        </div> */}
-                                    {/* </div> */}
+                                            <DeleteCustomer selectedData={customer} /> */}
+                                        </div>
+                                    </div>
                                 </div>
                             </Card>
                         ))}

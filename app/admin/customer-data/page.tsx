@@ -1,11 +1,10 @@
-import { Customer } from "@/app/types";
 import AddCustomer from "./add";
 import EditCustomer from "./edit";
 import DeleteCustomer from "./delete";
 import DetailCustomer from "./detail";
 import { Card, CardContent } from "@/components/ui/card";
 import getCustomer from "./get";
-import { User, Phone, MapPin, Contact, Search as SearchIcon, ShieldCheck } from "lucide-react";
+import { Phone, MapPin, Contact, Search as SearchIcon, ShieldCheck } from "lucide-react";
 import SimplePagination from "@/components/Pagination";
 import Search from "@/components/Search";
 import WarningToast from "@/components/WarningToast";
@@ -47,7 +46,7 @@ export default async function CustomersPage(prop: Props) {
                         </div>
                     </div>
                     
-                    <AddCustomer />
+                    <AddCustomer/>
                 </div>
             </div>
 
