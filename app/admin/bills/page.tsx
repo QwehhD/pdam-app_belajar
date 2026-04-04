@@ -1,5 +1,6 @@
 import { Bills } from "@/app/types";
 import AddBills from "./add";
+import EditBills from "./edit";
 import { Card, CardContent } from "@/components/ui/card";
 import getBills from "./get";
 import { User, Phone, MapPin, Contact, Search as SearchIcon, ShieldCheck } from "lucide-react";
@@ -151,11 +152,7 @@ export default async function BillsPage(prop: Props) {
                                     {/* Right: Action Buttons */}
                                     <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0 justify-end">
                                         <div className="flex gap-2 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
-                                            {/* <DetailCustomer selectedData={customer} />
-                                            <EditCustomer selectedData={customer} />
-                                            <ResetCustomer selectedData={customer} />
-                                            <div className="w-[1px] h-6 bg-slate-200 dark:bg-slate-700 mx-1 self-center" />
-                                            <DeleteCustomer selectedData={customer} /> */}
+                                            <EditBills selectedData={bill} />
                                         </div>
                                     </div>
                                 </div>
