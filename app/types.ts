@@ -70,9 +70,21 @@ export interface Bills {
   owner_token: string
   createdAt: string
   updatedAt: string
-  service: Service
+  service: Services
   admin: Admin
   customer: Customer
-  payments: any
+  payments: Payments[]
   amount: number
+}
+
+export interface Payments {
+  id: number
+  bill_id: number
+  payment_date: string
+  verified: boolean
+  total_amount: number
+  payment_proof: string
+  owner_token: string
+  createdAt: string
+  updatedAt: string
 }
