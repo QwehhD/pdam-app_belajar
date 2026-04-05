@@ -34,7 +34,7 @@ export const items = [
     },
     {
         title: "Payments", 
-        url: "#",
+        url: "/admin/payments",
         icon: Receipt
     },
 ]
