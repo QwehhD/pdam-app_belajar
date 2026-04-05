@@ -107,7 +107,7 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
                     <Eye className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <CreditCard className="h-5 w-5 text-blue-500" />
@@ -126,7 +126,7 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
                         </div>
                     </div>
                 ) : paymentDetail ? (
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         {/* Payment Status Badge */}
                         <div className="flex justify-center">
                             <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
@@ -143,136 +143,130 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
                             </span>
                         </div>
 
-                        {/* Payment Info */}
-                        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
-                            <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                                <CreditCard className="h-4 w-4 text-blue-500" />
-                                Informasi Pembayaran
-                            </h3>
-                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                    <Hash className="h-4 w-4 text-slate-400" />
-                                    <span>ID Pembayaran</span>
+                        {/* Grid Layout - 3 Columns */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Payment Info */}
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
+                                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                                    <CreditCard className="h-4 w-4 text-blue-500" />
+                                    Info Pembayaran
+                                </h3>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">ID</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">#{paymentDetail.id}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Tanggal</span>
+                                        <span className="font-medium text-slate-900 dark:text-white text-right">
+                                            {new Date(paymentDetail.payment_date).toLocaleDateString('id-ID', {
+                                                day: 'numeric',
+                                                month: 'short',
+                                                year: 'numeric'
+                                            })}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Total</span>
+                                        <span className="font-bold text-green-600 dark:text-green-400">
+                                            Rp {paymentDetail.total_amount.toLocaleString('id-ID')}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Bukti</span>
+                                        <span className="font-medium">
+                                            {paymentDetail.payment_proof ? (
+                                                <a href={paymentDetail.payment_proof} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                                    Lihat
+                                                </a>
+                                            ) : (
+                                                <span className="text-slate-400">-</span>
+                                            )}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="font-medium text-slate-900 dark:text-white">
-                                    #{paymentDetail.id}
-                                </div>
-                                
-                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                    <Calendar className="h-4 w-4 text-slate-400" />
-                                    <span>Tanggal Bayar</span>
-                                </div>
-                                <div className="font-medium text-slate-900 dark:text-white">
-                                    {new Date(paymentDetail.payment_date).toLocaleDateString('id-ID', {
-                                        weekday: 'long',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    })}
-                                </div>
-                                
-                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                    <DollarSign className="h-4 w-4 text-slate-400" />
-                                    <span>Total Bayar</span>
-                                </div>
-                                <div className="font-bold text-green-600 dark:text-green-400">
-                                    Rp {paymentDetail.total_amount.toLocaleString('id-ID')}
-                                </div>
-                                
-                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                    <FileCheck className="h-4 w-4 text-slate-400" />
-                                    <span>Bukti Bayar</span>
-                                </div>
-                                <div className="font-medium text-slate-900 dark:text-white">
-                                    {paymentDetail.payment_proof ? (
-                                        <a href={paymentDetail.payment_proof} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                                            Lihat Bukti
-                                        </a>
-                                    ) : (
-                                        <span className="text-slate-400">Tidak ada</span>
-                                    )}
-                                </div>
+                            </div>
+
+                            {/* Bill Info */}
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
+                                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                                    <FileCheck className="h-4 w-4 text-purple-500" />
+                                    Info Tagihan
+                                </h3>
+                                {paymentDetail.bill ? (
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">ID</span>
+                                            <span className="font-medium text-slate-900 dark:text-white">#{paymentDetail.bill.id}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Periode</span>
+                                            <span className="font-medium text-slate-900 dark:text-white">
+                                                {paymentDetail.bill.month}/{paymentDetail.bill.year}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Pemakaian</span>
+                                            <span className="font-medium text-slate-900 dark:text-white">
+                                                {paymentDetail.bill.usage_value} m³
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Harga</span>
+                                            <span className="font-medium text-slate-900 dark:text-white">
+                                                Rp {paymentDetail.bill.price.toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-400">Data tidak tersedia</p>
+                                )}
+                            </div>
+
+                            {/* Customer Info */}
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
+                                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                                    <User className="h-4 w-4 text-emerald-500" />
+                                    Info Pelanggan
+                                </h3>
+                                {paymentDetail.bill?.customer ? (
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Nama</span>
+                                            <span className="font-medium text-slate-900 dark:text-white text-right truncate max-w-[120px]">
+                                                {paymentDetail.bill.customer.name}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">No.</span>
+                                            <span className="font-medium text-slate-900 dark:text-white">
+                                                {paymentDetail.bill.customer.customer_number}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Telp</span>
+                                            <span className="font-medium text-slate-900 dark:text-white">
+                                                {paymentDetail.bill.customer.phone}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Alamat</span>
+                                            <span className="font-medium text-slate-900 dark:text-white text-right truncate max-w-[120px]">
+                                                {paymentDetail.bill.customer.address}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-400">Data tidak tersedia</p>
+                                )}
                             </div>
                         </div>
 
-                        {/* Bill Info */}
-                        {paymentDetail.bill && (
-                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
-                                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                                    <FileCheck className="h-4 w-4 text-purple-500" />
-                                    Informasi Tagihan
-                                </h3>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                        <Hash className="h-4 w-4 text-slate-400" />
-                                        <span>ID Tagihan</span>
-                                    </div>
-                                    <div className="font-medium text-slate-900 dark:text-white">
-                                        #{paymentDetail.bill.id}
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                        <Calendar className="h-4 w-4 text-slate-400" />
-                                        <span>Periode</span>
-                                    </div>
-                                    <div className="font-medium text-slate-900 dark:text-white">
-                                        {paymentDetail.bill.month}/{paymentDetail.bill.year}
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                        <DollarSign className="h-4 w-4 text-slate-400" />
-                                        <span>Nilai Pemakaian</span>
-                                    </div>
-                                    <div className="font-medium text-slate-900 dark:text-white">
-                                        {paymentDetail.bill.usage_value} m³
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                        <DollarSign className="h-4 w-4 text-slate-400" />
-                                        <span>Harga Tagihan</span>
-                                    </div>
-                                    <div className="font-medium text-slate-900 dark:text-white">
-                                        Rp {paymentDetail.bill.price.toLocaleString('id-ID')}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Customer Info */}
-                        {paymentDetail.bill?.customer && (
-                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
-                                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                                    <User className="h-4 w-4 text-emerald-500" />
-                                    Informasi Pelanggan
-                                </h3>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div className="text-slate-600 dark:text-slate-300">Nama</div>
-                                    <div className="font-medium text-slate-900 dark:text-white">
-                                        {paymentDetail.bill.customer.name}
-                                    </div>
-                                    
-                                    <div className="text-slate-600 dark:text-slate-300">No. Pelanggan</div>
-                                    <div className="font-medium text-slate-900 dark:text-white">
-                                        {paymentDetail.bill.customer.customer_number}
-                                    </div>
-                                    
-                                    <div className="text-slate-600 dark:text-slate-300">Telepon</div>
-                                    <div className="font-medium text-slate-900 dark:text-white">
-                                        {paymentDetail.bill.customer.phone}
-                                    </div>
-                                    
-                                    <div className="text-slate-600 dark:text-slate-300">Alamat</div>
-                                    <div className="font-medium text-slate-900 dark:text-white">
-                                        {paymentDetail.bill.customer.address}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                         {/* Timestamps */}
-                        <div className="text-xs text-slate-400 dark:text-slate-500 text-center space-y-1">
-                            <p>Dibuat: {new Date(paymentDetail.createdAt).toLocaleString('id-ID')}</p>
-                            <p>Diperbarui: {new Date(paymentDetail.updatedAt).toLocaleString('id-ID')}</p>
+                        <div className="text-xs text-slate-400 dark:text-slate-500 text-center flex justify-center gap-4">
+                            <span>Dibuat: {new Date(paymentDetail.createdAt).toLocaleString('id-ID')}</span>
+                            <span>•</span>
+                            <span>Diperbarui: {new Date(paymentDetail.updatedAt).toLocaleString('id-ID')}</span>
                         </div>
                     </div>
                 ) : (
