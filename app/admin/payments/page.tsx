@@ -1,9 +1,10 @@
 import { Payments } from "@/app/types";
 import { Card, CardContent } from "@/components/ui/card";
 import getPayments from "./get";
+import getPaymentsStats from "./get-stats";
 import DetailPayment from "./detail";
 import DeletePayment from "./delete";
-import { CreditCard, Calendar, DollarSign, FileCheck, CheckCircle, XCircle } from "lucide-react";
+import { CreditCard, Calendar, DollarSign, FileCheck, CheckCircle, XCircle, BarChart3, Clock, ShieldCheck } from "lucide-react";
 import SimplePagination from "@/components/Pagination";
 import Search from "@/components/Search";
 import WarningToast from "@/components/WarningToast";
@@ -23,6 +24,9 @@ export default async function PaymentsPage(prop: Props) {
     
     const result = await getPayments(page, quantity, search)
     const {count: counts, data: payments, success, message} = result
+    
+    // Ambil statistik payments
+    const stats = await getPaymentsStats()
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#020617] transition-colors duration-300">
@@ -47,6 +51,62 @@ export default async function PaymentsPage(prop: Props) {
             </div>
 
             <WarningToast success={success} message={message} isEmpty={payments.length === 0 && success} />
+
+            {/* Stats Monitoring Section */}
+            <div className="w-full px-6 pt-8 lg:px-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Total Payments */}
+                    <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-lg transition-all duration-300">
+                        <CardContent className="p-5">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Pembayaran</p>
+                                    <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{stats.total}</p>
+                                </div>
+                                <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                                    <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Verified */}
+                    <Card className="border-green-200 dark:border-green-900/50 bg-white dark:bg-slate-900 hover:shadow-lg hover:shadow-green-500/5 transition-all duration-300">
+                        <CardContent className="p-5">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Terverifikasi</p>
+                                    <p className="text-3xl font-black text-green-600 dark:text-green-400 mt-1">{stats.verified}</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                        {stats.total > 0 ? ((stats.verified / stats.total) * 100).toFixed(1) : 0}% dari total
+                                    </p>
+                                </div>
+                                <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
+                                    <ShieldCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Pending */}
+                    <Card className="border-yellow-200 dark:border-yellow-900/50 bg-white dark:bg-slate-900 hover:shadow-lg hover:shadow-yellow-500/5 transition-all duration-300">
+                        <CardContent className="p-5">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pending</p>
+                                    <p className="text-3xl font-black text-yellow-600 dark:text-yellow-400 mt-1">{stats.pending}</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                        {stats.total > 0 ? ((stats.pending / stats.total) * 100).toFixed(1) : 0}% dari total
+                                    </p>
+                                </div>
+                                <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
+                                    <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
 
             {/* Main Content Area */}
             <div className="w-full px-6 py-8 lg:px-12">
