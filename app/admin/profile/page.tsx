@@ -79,7 +79,7 @@ export default async function ProfileAdminPage() {
     
     if (!result.success || adminData == null) {
         return  (
-            <div className="container mx-auto py-10 px-4">
+            <div className="min-h-screen w-full bg-slate-50 dark:bg-[#020617] py-10 px-6 lg:px-12">
                 <WarningToast success={result.success} message={result.message} />
                 <Card className="p-8 text-center">
                     <p className="text-lg font-medium text-red-600">⚠️ Gagal Memuat Data</p>
@@ -89,7 +89,7 @@ export default async function ProfileAdminPage() {
         )
     }
     return (
-        <div className="container mx-auto py-10 px-4">
+        <div className="min-h-screen w-full bg-slate-50 dark:bg-[#020617] py-10 px-6 lg:px-12">
             <AdminProfileForm admin={adminData} />
         </div>
     )
