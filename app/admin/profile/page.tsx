@@ -88,9 +88,5 @@ export default async function ProfileAdminPage() {
             </div>
         )
     }
-    return (
-        <div className="min-h-screen w-full bg-slate-50 dark:bg-[#020617] py-10 px-6 lg:px-12">
-            <AdminProfileForm admin={adminData} />
-        </div>
-    )
+    return <AdminProfileForm admin={adminData} />
 }
