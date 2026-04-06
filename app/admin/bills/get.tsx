@@ -15,10 +15,15 @@ export interface BillsResult {
     count: number
 }
 
-async function getBills(page: number = 1, quantity: number = 9, search: string = ""): Promise<BillsResult> {
+async function getBills(page: number = 1, quantity: number = 9, search: string = "", paid?: string): Promise<BillsResult> {
     try {
         const token = await getCookie('accessToken');
-        const url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/bills?page=${page}&quantity=${quantity}&search=${search}`
+        let url = `${process.env.NEXT_PUBLIC_BASE_API_URL}/bills?page=${page}&quantity=${quantity}&search=${search}`
+        
+        // Add paid filter if specified
+        if (paid === "true" || paid === "false") {
+            url += `&paid=${paid}`
+        }
         
         // Fetch dengan timeout yang lebih aman
         const fetchWithTimeout = (timeout: number = 8000) => {
