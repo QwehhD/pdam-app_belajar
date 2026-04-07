@@ -1,4 +1,4 @@
-import { Home, UserPen, User, Users, Toolbox, Receipt } from "lucide-react";
+import { Home, UserPen, Receipt, CreditCard } from "lucide-react";
 
 
 export const items = [
@@ -9,32 +9,17 @@ export const items = [
     },
     {
         title: "My Profile", 
-        url: "#",
+        url: "/customer/profile",
         icon: UserPen,
     },
     {
-        title: "Admin Data", 
-        url: "#",
-        icon: User,
-    },
-    {
-        title: "Customer Data", 
-        url: "#",
-        icon: Users,
-    },
-    {
-        title: "Services", 
-        url: "#",
-        icon: Toolbox
-    },
-    {
-        title: "Bills", 
-        url: "#",
+        title: "My Bills", 
+        url: "/customer/bills",
         icon: Receipt,
     },
     {
-        title: "Payments", 
-        url: "/#",
-        icon: Receipt
+        title: "My Payments", 
+        url: "/customer/payments",
+        icon: CreditCard
     },
 ]
