@@ -1,4 +1,4 @@
-"use client"; // <--- Tambahkan ini di baris pertama!
+"use client";
 
 import {
   Sidebar,

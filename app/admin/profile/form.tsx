@@ -38,11 +38,6 @@ export default function AdminProfileForm({ admin }: Props) {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         try {
-            if (!profile.name.trim() || !profile.username.trim() || !profile.phone.trim()) {
-                toast.error("Mohon isi semua field");
-                return;
-            }
-
             setLoading(true);
             const token = await getCookie("accessToken");
             if (!token) {
