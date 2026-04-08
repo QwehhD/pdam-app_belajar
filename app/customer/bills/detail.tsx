@@ -1,5 +1,6 @@
 "use client"
 
+import { Bills } from "@/app/types";
 import { getCookie } from "@/lib/client-cookies";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -13,18 +14,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Eye, Calendar, DollarSign, CheckCircle, XCircle, Receipt, Clock, Droplets, CreditCard, User, FileCheck } from "lucide-react";
-import { CustomerPayment } from "./get";
 
-interface DetailPaymentProps {
-    paymentId: number;
+interface DetailBillProps {
+    billId: number;
 }
 
-const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
+const DetailBill = ({ billId }: DetailBillProps) => {
     const [open, setOpen] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const [paymentDetail, setPaymentDetail] = useState<CustomerPayment | null>(null);
+    const [billDetail, setBillDetail] = useState<Bills | null>(null);
 
-    const fetchPaymentDetail = async () => {
+    const fetchBillDetail = async () => {
         try {
             setLoading(true);
             const token = await getCookie("accessToken");
@@ -39,7 +39,7 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
             const timeoutId = setTimeout(() => controller.abort(), 8000);
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_BASE_API_URL}/bills/me/${paymentId}`,
+                `${process.env.NEXT_PUBLIC_BASE_API_URL}/bills/me/${billId}`,
                 {
                     method: "GET",
                     headers: {
@@ -54,49 +54,16 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
             const result = await response.json();
             
             if (result?.success && result?.data) {
-                const rawData = result.data;
-                const normalizedDetail: CustomerPayment = rawData?.bill_id
-                    ? rawData
-                    : {
-                        id: rawData?.payments?.id ?? rawData.id,
-                        bill_id: rawData.id,
-                        payment_date: rawData?.payments?.payment_date ?? rawData.updatedAt,
-                        verified: rawData?.payments?.verified ?? rawData.paid,
-                        total_amount: rawData?.payments?.total_amount ?? rawData.amount ?? (rawData.usage_value * rawData.price),
-                        payment_proof: rawData?.payments?.payment_proof ?? "",
-                        owner_token: rawData.owner_token,
-                        createdAt: rawData?.payments?.createdAt ?? rawData.createdAt,
-                        updatedAt: rawData?.payments?.updatedAt ?? rawData.updatedAt,
-                        bill: {
-                            id: rawData.id,
-                            customer_id: rawData.customer_id,
-                            admin_id: rawData.admin_id,
-                            month: rawData.month,
-                            year: rawData.year,
-                            measurement_number: rawData.measurement_number,
-                            usage_value: rawData.usage_value,
-                            price: rawData.price,
-                            service_id: rawData.service_id,
-                            paid: rawData.paid,
-                            owner_token: rawData.owner_token,
-                            createdAt: rawData.createdAt,
-                            updatedAt: rawData.updatedAt,
-                            admin: rawData.admin,
-                            customer: rawData.customer,
-                            service: rawData.service,
-                        }
-                    };
-
-                setPaymentDetail(normalizedDetail);
+                setBillDetail(result.data);
             } else {
-                toast.error(result?.message || "Gagal memuat detail pembayaran");
+                toast.error(result?.message || "Gagal memuat detail tagihan");
             }
         } catch (error: any) {
-            console.error("Error fetching payment detail:", error);
+            console.error("Error fetching bill detail:", error);
             if (error?.name === 'AbortError') {
                 toast.error("Koneksi timeout. Server tidak merespon");
             } else {
-                toast.error("Gagal memuat detail pembayaran");
+                toast.error("Gagal memuat detail tagihan");
             }
         } finally {
             setLoading(false);
@@ -105,7 +72,7 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
 
     const openModal = () => {
         setOpen(true);
-        fetchPaymentDetail();
+        fetchBillDetail();
     };
 
     const getMonthName = (month: number) => {
@@ -129,10 +96,10 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <CreditCard className="h-5 w-5 text-blue-500" />
-                        Detail Pembayaran #{paymentId}
+                        Detail Tagihan #{billId}
                     </DialogTitle>
                     <DialogDescription>
-                        Informasi lengkap pembayaran Anda
+                        Informasi lengkap tagihan Anda
                     </DialogDescription>
                 </DialogHeader>
                 
@@ -143,142 +110,112 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
                             <p className="text-sm text-slate-500">Memuat data...</p>
                         </div>
                     </div>
-                ) : paymentDetail ? (
+                ) : billDetail ? (
                     <div className="space-y-4">
                         {/* Payment Status Badge */}
                         <div className="flex justify-center">
                             <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
-                                paymentDetail.verified 
+                                billDetail.paid 
                                     ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                                     : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
                             }`}>
-                                {paymentDetail.verified ? (
+                                {billDetail.paid ? (
                                     <CheckCircle className="h-4 w-4" />
                                 ) : (
                                     <Clock className="h-4 w-4" />
                                 )}
-                                {paymentDetail.verified ? "Terverifikasi" : "Menunggu Verifikasi"}
+                                {billDetail.paid ? "Lunas" : "Belum Lunas"}
                             </span>
                         </div>
 
                         {/* Grid Layout - 3 Columns */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {/* Payment Info */}
-                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
-                                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
-                                    <CreditCard className="h-4 w-4 text-blue-500" />
-                                    Info Pembayaran
-                                </h3>
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500">ID</span>
-                                        <span className="font-medium text-slate-900 dark:text-white">#{paymentDetail.id}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500">Tanggal</span>
-                                        <span className="font-medium text-slate-900 dark:text-white text-right">
-                                            {new Date(paymentDetail.payment_date).toLocaleDateString('id-ID', {
-                                                day: 'numeric',
-                                                month: 'short',
-                                                year: 'numeric'
-                                            })}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500">Total</span>
-                                        <span className="font-bold text-green-600 dark:text-green-400">
-                                            Rp {paymentDetail.total_amount.toLocaleString('id-ID')}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500">Bukti</span>
-                                        <span className="font-medium">
-                                            {paymentDetail.payment_proof ? (
-                                                <span className="text-blue-500">✓ Tersedia</span>
-                                            ) : (
-                                                <span className="text-slate-400">-</span>
-                                            )}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
                             {/* Bill Info */}
                             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
                                 <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
                                     <Receipt className="h-4 w-4 text-purple-500" />
                                     Info Tagihan
                                 </h3>
-                                {paymentDetail.bill ? (
-                                    <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500">ID</span>
-                                            <span className="font-medium text-slate-900 dark:text-white">#{paymentDetail.bill.id}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500">Periode</span>
-                                            <span className="font-medium text-slate-900 dark:text-white">
-                                                {getMonthName(paymentDetail.bill.month)} {paymentDetail.bill.year}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500">Pemakaian</span>
-                                            <span className="font-medium text-slate-900 dark:text-white">
-                                                {paymentDetail.bill.usage_value} m³
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500">Harga/m³</span>
-                                            <span className="font-medium text-slate-900 dark:text-white">
-                                                Rp {paymentDetail.bill.price.toLocaleString('id-ID')}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500">No. Meteran</span>
-                                            <span className="font-medium text-slate-900 dark:text-white">
-                                                {paymentDetail.bill.measurement_number}
-                                            </span>
-                                        </div>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">ID</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">#{billDetail.id}</span>
                                     </div>
-                                ) : (
-                                    <p className="text-sm text-slate-400">Data tidak tersedia</p>
-                                )}
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Periode</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">
+                                            {getMonthName(billDetail.month)} {billDetail.year}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Total</span>
+                                        <span className="font-bold text-green-600 dark:text-green-400">
+                                            Rp {billDetail.amount.toLocaleString('id-ID')}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">No. Meteran</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">
+                                            {billDetail.measurement_number}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Customer & Service Info */}
+                            {/* Usage Info */}
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
+                                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                                    <Droplets className="h-4 w-4 text-blue-500" />
+                                    Info Pemakaian
+                                </h3>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Pemakaian</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">
+                                            {billDetail.usage_value} m³
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Harga/m³</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">
+                                            Rp {billDetail.price.toLocaleString('id-ID')}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Layanan</span>
+                                        <span className="font-medium text-slate-900 dark:text-white text-right truncate max-w-[120px]">
+                                            {billDetail.service?.name || '-'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Customer Info */}
                             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
                                 <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
                                     <User className="h-4 w-4 text-emerald-500" />
                                     Info Pelanggan
                                 </h3>
-                                {paymentDetail.bill?.customer ? (
+                                {billDetail.customer ? (
                                     <div className="space-y-2 text-sm">
                                         <div className="flex justify-between">
                                             <span className="text-slate-500">Nama</span>
                                             <span className="font-medium text-slate-900 dark:text-white text-right truncate max-w-[120px]">
-                                                {paymentDetail.bill.customer.name}
+                                                {billDetail.customer.name}
                                             </span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-slate-500">No.</span>
                                             <span className="font-medium text-slate-900 dark:text-white">
-                                                {paymentDetail.bill.customer.customer_number}
+                                                {billDetail.customer.customer_number}
                                             </span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-slate-500">Telp</span>
                                             <span className="font-medium text-slate-900 dark:text-white">
-                                                {paymentDetail.bill.customer.phone}
+                                                {billDetail.customer.phone}
                                             </span>
                                         </div>
-                                        {paymentDetail.bill.service && (
-                                            <div className="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
-                                                <span className="text-slate-500">Layanan</span>
-                                                <span className="font-medium text-slate-900 dark:text-white text-right truncate max-w-[100px]">
-                                                    {paymentDetail.bill.service.name}
-                                                </span>
-                                            </div>
-                                        )}
                                     </div>
                                 ) : (
                                     <p className="text-sm text-slate-400">Data tidak tersedia</p>
@@ -286,18 +223,49 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
                             </div>
                         </div>
 
+                        {/* Payment History */}
+                        {billDetail.payments && billDetail.payments.length > 0 && (
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
+                                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                                    <CreditCard className="h-4 w-4 text-blue-500" />
+                                    Riwayat Pembayaran
+                                </h3>
+                                <div className="space-y-2">
+                                    {billDetail.payments.map((payment) => (
+                                        <div key={payment.id} className="flex justify-between items-center text-sm p-2 bg-white dark:bg-slate-900 rounded-lg">
+                                            <div>
+                                                <span className="font-medium text-slate-900 dark:text-white">
+                                                    Rp {payment.total_amount.toLocaleString('id-ID')}
+                                                </span>
+                                                <p className="text-xs text-slate-500">
+                                                    {new Date(payment.payment_date).toLocaleDateString('id-ID')}
+                                                </p>
+                                            </div>
+                                            <span className={`text-xs px-2 py-1 rounded ${
+                                                payment.verified 
+                                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                                    : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                            }`}>
+                                                {payment.verified ? "Verified" : "Pending"}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Timestamps */}
                         <div className="text-xs text-slate-400 dark:text-slate-500 text-center flex justify-center gap-4">
-                            <span>Dibuat: {new Date(paymentDetail.createdAt).toLocaleString('id-ID')}</span>
+                            <span>Dibuat: {new Date(billDetail.createdAt).toLocaleString('id-ID')}</span>
                             <span>•</span>
-                            <span>Diperbarui: {new Date(paymentDetail.updatedAt).toLocaleString('id-ID')}</span>
+                            <span>Diperbarui: {new Date(billDetail.updatedAt).toLocaleString('id-ID')}</span>
                         </div>
                     </div>
                 ) : (
                     <div className="flex items-center justify-center py-12">
                         <div className="text-center">
                             <XCircle className="h-12 w-12 text-red-400 mx-auto mb-3" />
-                            <p className="text-slate-500">Gagal memuat data pembayaran</p>
+                            <p className="text-slate-500">Gagal memuat data tagihan</p>
                         </div>
                     </div>
                 )}
@@ -306,4 +274,4 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
     )
 }
 
-export default DetailPayment;
+export default DetailBill;
