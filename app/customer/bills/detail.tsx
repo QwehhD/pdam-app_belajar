@@ -39,7 +39,7 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
             const timeoutId = setTimeout(() => controller.abort(), 8000);
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_BASE_API_URL}/payments/me/${paymentId}`,
+                `${process.env.NEXT_PUBLIC_BASE_API_URL}/bills/me/${paymentId}`,
                 {
                     method: "GET",
                     headers: {
@@ -54,7 +54,40 @@ const DetailPayment = ({ paymentId }: DetailPaymentProps) => {
             const result = await response.json();
             
             if (result?.success && result?.data) {
-                setPaymentDetail(result.data);
+                const rawData = result.data;
+                const normalizedDetail: CustomerPayment = rawData?.bill_id
+                    ? rawData
+                    : {
+                        id: rawData?.payments?.id ?? rawData.id,
+                        bill_id: rawData.id,
+                        payment_date: rawData?.payments?.payment_date ?? rawData.updatedAt,
+                        verified: rawData?.payments?.verified ?? rawData.paid,
+                        total_amount: rawData?.payments?.total_amount ?? rawData.amount ?? (rawData.usage_value * rawData.price),
+                        payment_proof: rawData?.payments?.payment_proof ?? "",
+                        owner_token: rawData.owner_token,
+                        createdAt: rawData?.payments?.createdAt ?? rawData.createdAt,
+                        updatedAt: rawData?.payments?.updatedAt ?? rawData.updatedAt,
+                        bill: {
+                            id: rawData.id,
+                            customer_id: rawData.customer_id,
+                            admin_id: rawData.admin_id,
+                            month: rawData.month,
+                            year: rawData.year,
+                            measurement_number: rawData.measurement_number,
+                            usage_value: rawData.usage_value,
+                            price: rawData.price,
+                            service_id: rawData.service_id,
+                            paid: rawData.paid,
+                            owner_token: rawData.owner_token,
+                            createdAt: rawData.createdAt,
+                            updatedAt: rawData.updatedAt,
+                            admin: rawData.admin,
+                            customer: rawData.customer,
+                            service: rawData.service,
+                        }
+                    };
+
+                setPaymentDetail(normalizedDetail);
             } else {
                 toast.error(result?.message || "Gagal memuat detail pembayaran");
             }
