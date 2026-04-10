@@ -1,10 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import getCustomerBills from "./get";
 import DetailBill from "./detail";
+import AddPayment from "./add-payment";
 import { CreditCard, Calendar, DollarSign, Receipt, CheckCircle, Clock, BarChart3, ShieldCheck, FileCheck } from "lucide-react";
 import SimplePagination from "@/components/Pagination";
 import Search from "@/components/Search";
 import WarningToast from "@/components/WarningToast";
+import { PaymentProofPreview } from "./proof";
+import { Bills } from "@/app/types";
 
 type Props = {
     searchParams: Promise<{
@@ -13,6 +16,12 @@ type Props = {
         search?: string
     }>
 }
+
+const getStatus = (bills: Bills) => {
+       if (bills.payments == null) return "unpaid"
+       if (!bills.payments?.verified) return "pending"
+       return "paid"
+   }
 
 export default async function CustomerBillsPage(prop: Props) {
     const page = (await prop.searchParams)?.page || 1
@@ -33,6 +42,7 @@ export default async function CustomerBillsPage(prop: Props) {
     };
 
     return (
+        
         <div className="min-h-screen bg-slate-50 dark:bg-[#020617] transition-colors duration-300">
             {/* Header Section - Full Width */}
             <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-8 lg:px-12">
@@ -55,7 +65,7 @@ export default async function CustomerBillsPage(prop: Props) {
             </div>
 
             <WarningToast success={success} message={message} isEmpty={bills.length === 0 && success} />
-
+                
             {/* Stats Monitoring Section */}
             <div className="w-full px-6 pt-8 lg:px-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -158,11 +168,12 @@ export default async function CustomerBillsPage(prop: Props) {
                                                     Tagihan #{bill.id}
                                                 </h2>
                                                 <span className={`text-[10px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-md border ${
-                                                    bill.paid 
+                                                    getStatus(bill) 
                                                         ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-100 dark:border-green-800"
                                                         : "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-100 dark:border-yellow-800"
                                                 }`}>
-                                                    {bill.paid ? "Lunas" : "Belum Lunas"}
+                                                    {getStatus(bill)}
+                                                    
                                                 </span>
                                             </div>
                                             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
@@ -215,6 +226,12 @@ export default async function CustomerBillsPage(prop: Props) {
                                     <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0 justify-end">
                                         <div className="flex gap-2 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
                                             <DetailBill billId={bill.id} />
+                                            {!bill.paid && <AddPayment bill={bill} />}
+                                        </div>
+                                        <div className="flex gap-2 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                                            <DetailBill billId={bill.id} />
+                                            (<PaymentProofPreview filename={bill.payments.payment_proof}/>
+                                        )
                                         </div>
                                     </div>
                                 </div>
