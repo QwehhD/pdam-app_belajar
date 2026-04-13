@@ -226,11 +226,11 @@ export default async function CustomerBillsPage(prop: Props) {
                                     <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0 justify-end">
                                         <div className="flex gap-2 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
                                             <DetailBill billId={bill.id} />
-                                            {!bill.paid && <AddPayment bill={bill} />}
+                                            {!bill.paid && <AddPayment billId={bill.id} />}
                                         </div>
                                         <div className="flex gap-2 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
                                             <DetailBill billId={bill.id} />
-                                            (<PaymentProofPreview filename={bill.payments.payment_proof}/>
+                                            (<PaymentProofPreview filename={bill?.payments?.payment_proof}/>
                                         )
                                         </div>
                                     </div>

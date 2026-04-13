@@ -2,7 +2,7 @@ import { Bills } from "@/app/types";
 import AddBills from "./add";
 import EditBills from "./edit";
 import DeleteBills from "./delete";
-import FilterStatus from "./filter-status";
+import FilterStatus from "./filter";
 import { Card, CardContent } from "@/components/ui/card";
 import getBills from "./get";
 import getBillsStats from "./get-stats";
@@ -10,27 +10,47 @@ import { Receipt, Calendar, Droplets, DollarSign, CheckCircle, XCircle, User, Ha
 import SimplePagination from "@/components/Pagination";
 import Search from "@/components/Search";
 import WarningToast from "@/components/WarningToast";
+import VerifyBill from "./verify"
+import { getBillsByAdmin } from "@/services/bills.admin";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { X } from "lucide-react";
 
 type Props = {
-    searchParams: Promise<{
-        page?: number
-        quantity?: number
-        search?: string
-        paid?: string
-    }>
+ searchParams: Promise<{
+   page?: number
+   quantity?: number
+   search?: string
+   status?: string
+ }>
+
 }
 
-export default async function BillsPage(prop: Props) {
-    const page = (await prop.searchParams)?.page || 1
-    const quantity = (await prop.searchParams)?.quantity || 3
-    const search = (await prop.searchParams)?.search || ""
-    const paid = (await prop.searchParams)?.paid || ""
-    
-    const result = await getBills(page, quantity, search, paid)
-    const {count: counts, data: bills, success, message} = result
-    
-    // Ambil statistik tagihan
-    const stats = await getBillsStats()
+export default async function BillPage(prop: Props) {
+ const page = (await prop.searchParams)?.page || 1
+ const quantity = (await prop.searchParams)?.quantity || 5
+ const search = (await prop.searchParams)?.search || ""
+ const status = (await prop.searchParams)?.status || "all"
+ const { counts, bills } = await getBillsByAdmin({ page, quantity, search });
+ const { customers } = await getCustomers({ page: 1, quantity: 1000, search: "" });
+
+ let filteredBills = bills
+
+
+ if (status === "unpaid") {
+   filteredBills = bills.filter(b => b.payments == null)
+ }
+
+
+ if (status === "pending") {
+   filteredBills = bills.filter(b => b.payments && !b.payments.verified)
+ }
+
+
+ if (status === "paid") {
+   filteredBills = bills.filter(b => b.payments?.verified)
+ }
+
+
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#020617] transition-colors duration-300">
@@ -122,10 +142,10 @@ export default async function BillsPage(prop: Props) {
                     <div className="flex-1 max-w-2xl">
                         <Search search={search ?? ""} />
                     </div>
-                    <FilterStatus currentFilter={paid} />
+                    <FilterStatus currentFilter={status} />
                 </div>
-
-                {!success && bills.length === 0 ? (
+                
+                {!success && filteredBills.length === 0 ? (
                     <Card className="border-red-200 dark:border-red-900/50 bg-white dark:bg-slate-900 shadow-xl shadow-red-500/5">
                         <CardContent className="p-16 text-center">
                             <div className="inline-flex p-5 rounded-full bg-red-50 dark:bg-red-900/20 mb-6 text-3xl">⚠️</div>
@@ -133,7 +153,7 @@ export default async function BillsPage(prop: Props) {
                             <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">{message || "Terjadi kendala saat menghubungkan ke server."}</p>
                         </CardContent>
                     </Card>
-                ) : bills.length === 0 ? (
+                ) : filteredBills.length === 0 ? (
                     <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                         <CardContent className="p-16 text-center">
                             <div className="inline-flex p-5 rounded-full bg-slate-50 dark:bg-slate-800 mb-6 text-3xl">🔍</div>
@@ -145,7 +165,7 @@ export default async function BillsPage(prop: Props) {
                     </Card>
                 ) : (
                     <div className="space-y-4">
-                        {bills.map((bill) => (
+                        {filteredBills.map((bill) => (
                             <Card 
                                 key={bill.id} 
                                 className={`group border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-2xl transition-all duration-300 ${
@@ -240,6 +260,8 @@ export default async function BillsPage(prop: Props) {
                                             <EditBills selectedData={bill} />
                                             <div className="w-[1px] h-6 bg-slate-200 dark:bg-slate-700 mx-1 self-center" />
                                             <DeleteBills selectedData={bill} />
+
+                                            <VerifyBill selectedData={bill} />
                                         </div>
                                     </div>
                                 </div>
@@ -247,6 +269,20 @@ export default async function BillsPage(prop: Props) {
                         ))}
                     </div>
                 )}
+
+                {
+         filteredBills.length === 0 ? (
+           <Alert>
+             <X />
+             <AlertTitle>Information</AlertTitle>
+             <AlertDescription>No data available</AlertDescription>
+           </Alert>
+         ) : (
+           <>
+             {filteredBills.map((bill) => (
+               <BillCard key={bill.id} bill={bill} customers={customers} />
+             ))}
+
 
                 {/* Pagination Section */}
                 <div className="mt-10 mb-20 flex justify-center lg:justify-end">

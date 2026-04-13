@@ -73,7 +73,7 @@ export interface Bills {
   service: Services
   admin: Admin
   customer: Customer
-  payments: Payments[]
+  payments: Payments
   amount: number
 }
 
