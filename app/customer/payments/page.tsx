@@ -228,8 +228,8 @@
 //                     <div className="bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-blue-200 dark:hover:border-blue-800">
 //                         <SimplePagination count={counts} perPage={quantity} currentPages={page} />
 //                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     );
 // }
+
+export default function CustomerPaymentsPage() {
+    return <div>Coming Soon</div>
+}

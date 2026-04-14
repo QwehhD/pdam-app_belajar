@@ -2,7 +2,6 @@ import { Bills } from "@/app/types";
 import AddBills from "./add";
 import EditBills from "./edit";
 import DeleteBills from "./delete";
-import FilterStatus from "./filter-status";
 import { Card, CardContent } from "@/components/ui/card";
 import getBills from "./get";
 import getBillsStats from "./get-stats";
@@ -11,14 +10,20 @@ import SimplePagination from "@/components/Pagination";
 import Search from "@/components/Search";
 import WarningToast from "@/components/WarningToast";
 import VerifyBill from "./verify"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { X } from "lucide-react";
+import StatusFilter from "./filter";
+import  getCustomer  from "../customer-data/get";
 
 type Props = {
     searchParams: Promise<{
-        page?: number
-        quantity?: number
-        search?: string
-    }>
+    page?: number
+    quantity?: number
+    search?: string
+    status?: string
+ }>
 }
+
 
 const getStatus = (bills: Bills) => {
        if (bills.payments == null) return "unpaid"
@@ -30,13 +35,34 @@ export default async function BillsPage(prop: Props) {
     const page = (await prop.searchParams)?.page || 1
     const quantity = (await prop.searchParams)?.quantity || 3
     const search = (await prop.searchParams)?.search || ""
-    // const paid = (await prop.searchParams)?.paid || ""
+    const status = (await prop.searchParams)?.status || "all"
     
-    const result = await getBills(page, quantity, search)
+    const result = await getBills(page, quantity, search, status)
     const {count: counts, data: bills, success, message} = result
+
+    // const { customers } = await getCustomer({ page: 1, quantity: 1000, search: "" });
+
     
     // Ambil statistik tagihan
     const stats = await getBillsStats()
+
+    let filteredBills = bills
+
+
+ if (status === "unpaid") {
+   filteredBills = bills.filter(b => b.payments == null)
+ }
+
+
+ if (status === "pending") {
+   filteredBills = bills.filter(b => b.payments && !b.payments.verified)
+ }
+
+
+ if (status === "paid") {
+   filteredBills = bills.filter(b => b.payments?.verified)
+ }
+
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#020617] transition-colors duration-300">
