@@ -10,6 +10,7 @@ import { Receipt, Calendar, Droplets, DollarSign, CheckCircle, XCircle, User, Ha
 import SimplePagination from "@/components/Pagination";
 import Search from "@/components/Search";
 import WarningToast from "@/components/WarningToast";
+import VerifyBill from "./verify"
 
 type Props = {
     searchParams: Promise<{
@@ -245,6 +246,7 @@ export default async function BillsPage(prop: Props) {
                                                     {bill.service?.name || "-"}
                                                 </span>
                                             </div>
+                                            <VerifyBill selectedData={bill} />
                                         </div>
                                     </div>
 
