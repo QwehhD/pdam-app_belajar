@@ -6,7 +6,7 @@ import FilterStatus from "./filter-status";
 import { Card, CardContent } from "@/components/ui/card";
 import getBills from "./get";
 import getBillsStats from "./get-stats";
-import { Receipt, Calendar, Droplets, DollarSign, CheckCircle, XCircle, User, Hash, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
+import { Receipt, Calendar, Droplets, DollarSign, CheckCircle, XCircle, User, Hash, TrendingUp, TrendingDown, BarChart3, Clock } from "lucide-react";
 import SimplePagination from "@/components/Pagination";
 import Search from "@/components/Search";
 import WarningToast from "@/components/WarningToast";
@@ -16,17 +16,22 @@ type Props = {
         page?: number
         quantity?: number
         search?: string
-        paid?: string
     }>
 }
+
+const getStatus = (bills: Bills) => {
+       if (bills.payments == null) return "unpaid"
+       if (!bills.payments?.verified) return "pending"
+       return "paid"
+   }
 
 export default async function BillsPage(prop: Props) {
     const page = (await prop.searchParams)?.page || 1
     const quantity = (await prop.searchParams)?.quantity || 3
     const search = (await prop.searchParams)?.search || ""
-    const paid = (await prop.searchParams)?.paid || ""
+    // const paid = (await prop.searchParams)?.paid || ""
     
-    const result = await getBills(page, quantity, search, paid)
+    const result = await getBills(page, quantity, search)
     const {count: counts, data: bills, success, message} = result
     
     // Ambil statistik tagihan
@@ -57,7 +62,6 @@ export default async function BillsPage(prop: Props) {
             </div>
 
             <WarningToast success={success} message={message} isEmpty={bills.length === 0 && success} />
-
             {/* Stats Monitoring Section */}
             <div className="w-full px-6 pt-8 lg:px-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -75,7 +79,9 @@ export default async function BillsPage(prop: Props) {
                             </div>
                         </CardContent>
                     </Card>
-
+                    
+                    
+                        
                     {/* Sudah Lunas */}
                     <Card className="border-green-200 dark:border-green-900/50 bg-white dark:bg-slate-900 hover:shadow-lg hover:shadow-green-500/5 transition-all duration-300">
                         <CardContent className="p-5">
@@ -122,7 +128,7 @@ export default async function BillsPage(prop: Props) {
                     <div className="flex-1 max-w-2xl">
                         <Search search={search ?? ""} />
                     </div>
-                    <FilterStatus currentFilter={paid} />
+                    
                 </div>
 
                 {!success && bills.length === 0 ? (
@@ -149,8 +155,10 @@ export default async function BillsPage(prop: Props) {
                             <Card 
                                 key={bill.id} 
                                 className={`group border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-2xl transition-all duration-300 ${
-                                    bill.paid 
+                                    getStatus(bill) === "paid"
                                         ? "hover:shadow-green-500/5 border-l-4 border-l-green-500" 
+                                        : getStatus(bill) === "pending"
+                                        ? "hover:shadow-yellow-500/5 border-l-4 border-l-yellow-500"
                                         : "hover:shadow-red-500/5 border-l-4 border-l-red-500"
                                 }`}
                             >
@@ -158,8 +166,10 @@ export default async function BillsPage(prop: Props) {
                                     {/* Left: Identity Section */}
                                     <div className="flex items-start md:items-center gap-5 flex-[1.5]">
                                         <div className={`h-16 w-16 shrink-0 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg ${
-                                            bill.paid 
+                                            getStatus(bill) === "paid"
                                                 ? "bg-gradient-to-br from-green-500 to-emerald-600 shadow-green-200 dark:shadow-none"
+                                                : getStatus(bill) === "pending"
+                                                ? "bg-gradient-to-br from-yellow-500 to-amber-600 shadow-yellow-200 dark:shadow-none"
                                                 : "bg-gradient-to-br from-red-500 to-rose-600 shadow-red-200 dark:shadow-none"
                                         }`}>
                                             {bill.customer.name.charAt(0).toUpperCase()}
@@ -172,12 +182,16 @@ export default async function BillsPage(prop: Props) {
                                                 </h2>
                                                 {/* Status Badge */}
                                                 <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-md border ${
-                                                    bill.paid 
+                                                    getStatus(bill) === "paid"
                                                         ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-100 dark:border-green-800"
+                                                        : getStatus(bill) === "pending"
+                                                        ? "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-100 dark:border-yellow-800"
                                                         : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-100 dark:border-red-800"
                                                 }`}>
-                                                    {bill.paid ? (
+                                                    {getStatus(bill) === "paid" ? (
                                                         <><CheckCircle className="h-3 w-3" /> Lunas</>
+                                                    ) : getStatus(bill) === "pending" ? (
+                                                        <><Clock className="h-3 w-3" /> Pending</>
                                                     ) : (
                                                         <><XCircle className="h-3 w-3" /> Belum Bayar</>
                                                     )}
