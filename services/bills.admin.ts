@@ -64,8 +64,8 @@ export const dropBill = async (id: number): Promise<Record<string, never>> => {
 }
 
 
-export const verifyPayment = async (id: number): Promise<Record<string, never>> => {
+export const verifyPayment = async (id: number) => {
    const url = `${BASE_API_URL}/payments/${id}`
-   const { data } = await patch(url, "", token)
-   return data;
+   const response = await patch(url, "", token)
+   return response;
 }

@@ -1,10 +1,8 @@
-import { Bills } from "@/app/types";
 import AddBills from "./add";
 import EditBills from "./edit";
 import DeleteBills from "./delete";
 import FilterStatus from "./filter";
 import { Card, CardContent } from "@/components/ui/card";
-import getBills from "./get";
 import getBillsStats from "./get-stats";
 import { Receipt, Calendar, Droplets, DollarSign, CheckCircle, XCircle, User, Hash, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 import SimplePagination from "@/components/Pagination";
@@ -12,8 +10,7 @@ import Search from "@/components/Search";
 import WarningToast from "@/components/WarningToast";
 import VerifyBill from "./verify"
 import { getBillsByAdmin } from "@/services/bills.admin";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { X } from "lucide-react";
+import getCustomer from "../customer-data/get";
 
 type Props = {
  searchParams: Promise<{
@@ -31,7 +28,8 @@ export default async function BillPage(prop: Props) {
  const search = (await prop.searchParams)?.search || ""
  const status = (await prop.searchParams)?.status || "all"
  const { counts, bills } = await getBillsByAdmin({ page, quantity, search });
- const { customers } = await getCustomers({ page: 1, quantity: 1000, search: "" });
+ const customerResult = await getCustomer(1, 1000, "");
+ const stats = await getBillsStats();
 
  let filteredBills = bills
 
@@ -76,7 +74,7 @@ export default async function BillPage(prop: Props) {
                 </div>
             </div>
 
-            <WarningToast success={success} message={message} isEmpty={bills.length === 0 && success} />
+            <WarningToast success={counts > 0} message="Bills loaded successfully" isEmpty={bills.length === 0} />
 
             {/* Stats Monitoring Section */}
             <div className="w-full px-6 pt-8 lg:px-12">
@@ -87,7 +85,7 @@ export default async function BillPage(prop: Props) {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Tagihan</p>
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{stats.total}</p>
+                                    {/* <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{stats.total}</p> */}
                                 </div>
                                 <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
                                     <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -136,24 +134,24 @@ export default async function BillPage(prop: Props) {
 
             {/* Main Content Area */}
             <div className="w-full px-6 py-8 lg:px-12">
-                
-                {/* Search & Filter Bar Container */}
-                <div className="mb-8 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center gap-4">
-                    <div className="flex-1 max-w-2xl">
-                        <Search search={search ?? ""} />
+                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-8">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Data Tagihan</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Kelola dan monitor semua data tagihan dengan mudah.</p>
+                    
+                    {/* Search & Filter Bar */}
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="flex-1">
+                            <Search search={search ?? ""} />
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">Status:</label>
+                            <FilterStatus />
+                        </div>
                     </div>
-                    <FilterStatus currentFilter={status} />
                 </div>
                 
-                {!success && filteredBills.length === 0 ? (
-                    <Card className="border-red-200 dark:border-red-900/50 bg-white dark:bg-slate-900 shadow-xl shadow-red-500/5">
-                        <CardContent className="p-16 text-center">
-                            <div className="inline-flex p-5 rounded-full bg-red-50 dark:bg-red-900/20 mb-6 text-3xl">⚠️</div>
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Gagal Memuat Data</h2>
-                            <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">{message || "Terjadi kendala saat menghubungkan ke server."}</p>
-                        </CardContent>
-                    </Card>
-                ) : filteredBills.length === 0 ? (
+                {filteredBills.length === 0 ? (
                     <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                         <CardContent className="p-16 text-center">
                             <div className="inline-flex p-5 rounded-full bg-slate-50 dark:bg-slate-800 mb-6 text-3xl">🔍</div>
@@ -269,20 +267,6 @@ export default async function BillPage(prop: Props) {
                         ))}
                     </div>
                 )}
-
-                {
-         filteredBills.length === 0 ? (
-           <Alert>
-             <X />
-             <AlertTitle>Information</AlertTitle>
-             <AlertDescription>No data available</AlertDescription>
-           </Alert>
-         ) : (
-           <>
-             {filteredBills.map((bill) => (
-               <BillCard key={bill.id} bill={bill} customers={customers} />
-             ))}
-
 
                 {/* Pagination Section */}
                 <div className="mt-10 mb-20 flex justify-center lg:justify-end">

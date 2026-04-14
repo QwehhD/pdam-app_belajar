@@ -38,14 +38,13 @@ const VerifyBill = ({
        try {
            e.preventDefault()
 
-
            const result = await verifyPayment(selectedData.payments?.id || 0)
-           if (result?.success) {
-               toast.success(result.message)
+           if (result?.status) {
+               toast.success(result.message || "Payment verified successfully")
                setOpen(false)
                setTimeout(() => router.refresh(), 1000)
            } else {
-               toast.warning(result.message)
+               toast.error(result.message || "Failed to verify payment")
            }
        } catch (error) {
            toast.error(`Something wrong, ${error}`)
