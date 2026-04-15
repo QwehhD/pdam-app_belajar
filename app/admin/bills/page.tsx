@@ -155,7 +155,7 @@ export default async function BillsPage(prop: Props) {
                     <div className="flex-1 max-w-2xl">
                         <Search search={search ?? ""} />
                     </div>
-                    
+                    <StatusFilter />
                 </div>
 
                 {!success && bills.length === 0 ? (
@@ -178,7 +178,7 @@ export default async function BillsPage(prop: Props) {
                     </Card>
                 ) : (
                     <div className="space-y-4">
-                        {bills.map((bill) => (
+                        {filteredBills.map((bill) => (
                             <Card 
                                 key={bill.id} 
                                 className={`group border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-2xl transition-all duration-300 ${
