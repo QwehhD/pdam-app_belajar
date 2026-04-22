@@ -69,3 +69,4 @@ export const verifyPayment = async (id: number): Promise<Record<string, never>> 
    const { data } = await patch(url, "", token)
    return data;
 }
+

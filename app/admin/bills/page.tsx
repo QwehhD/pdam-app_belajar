@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { X } from "lucide-react";
 import StatusFilter from "./filter";
 import  getCustomer  from "../customer-data/get";
+import Link from "next/link";
 
 type Props = {
     searchParams: Promise<{
@@ -23,6 +24,8 @@ type Props = {
     status?: string
  }>
 }
+
+const hasPayment = (bill: Bills) => bill.payments != null;
 
 
 const getStatus = (bills: Bills) => {
@@ -275,6 +278,16 @@ export default async function BillsPage(prop: Props) {
                                             <VerifyBill selectedData={bill} />
                                         </div>
                                     </div>
+
+                                    {/* DETAIL */}
+                        {hasPayment(bill) && (
+                        <Link
+                            href={`/admin/bills/${bill.id}`}
+                            className="text-sm px-3 py-1 rounded-md bg-primary text-white hover:opacity-90"
+                        >
+                            Detail
+                        </Link>
+                        )}
 
                                     {/* Right: Action Buttons */}
                                     <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0 justify-end">
